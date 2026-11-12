@@ -4,10 +4,10 @@
          conn = sqlite3.connect(DB_NAME)
          cursor = conn.cursor()
          
--        # УЯЗВИМОСТЬ 1: SQL Injection (прямая подстановка пользовательского ввода в запрос)
+-        # Уязвимость 1: SQL Injection
 -        query = f"SELECT id, username FROM users WHERE username = '{username}' AND password = '{password}'"
 -        cursor.execute(query)
-+        # ИСПРАВЛЕНИЕ 1: Использование параметризованного запроса
++        # Исправление 1: Использование параметризованного запроса
 +        query = "SELECT id, username FROM users WHERE username = ? AND password = ?"
 +        cursor.execute(query, (username, password))
          user = cursor.fetchone()
@@ -18,14 +18,14 @@
      if 'user_id' not in session:
          return redirect(url_for('login'))
 +        
-+    # ИСПРАВЛЕНИЕ 2: Проверка прав доступа (авторизация)
++    # Исправление 2: Проверка прав доступа (авторизация)
 +    if session['user_id'] != user_id:
 +        return "Доступ запрещен: вы можете просматривать только свой профиль.", 403
          
      conn = sqlite3.connect(DB_NAME)
      cursor = conn.cursor()
 -    
--    # УЯЗВИМОСТЬ 2: IDOR (отсутствует проверка, совпадает ли user_id из URL с session['user_id'])
+-    # Уязвимость 2: IDOR 
      cursor.execute("SELECT username, secret_note FROM users WHERE id = ?", (user_id,))
      user = cursor.fetchone()
      conn.close()
